@@ -17,18 +17,15 @@
    increaseAmp = false;
    increaseRed = false;
 
-   freq = .02;
+   freq = 20;
    amp = 1000;
-    
-   //noLoop();
   }
    
   void draw()
   {
-    freq = .02 * mouseX / 1000;
-    currentLine = (0.4 + (mouseY / 1080)) * 10;
+    freq = .02;
+    currentLine = (0.4) * 10;
 
-    //draw shit
     if (increaseAmp) {
       currentAmp = currentAmp - .01;
     } else {
@@ -60,21 +57,21 @@
     }
   }
    
-  void makeSquiggle(float deg, float s, float turn, float reddish)
+  void makeSquiggle(float deg, float wobble, float turn, float reddish)
   {
     pushMatrix();
     translate(width / 2, height / 2);
 
-    rotate(radians(deg + (turn * .1)));
+    rotate( radians(deg + (turn * .1)) );
      
     beginShape();
-   
-    for(int i = 0; i < 100; i++)
-    {
-      stroke(reddish, (4 + i), (255 - i), i);
+    fill(255, deg, 0, 10);
+    
+    for(int i = 0; i < 200; i++) {
+      stroke(reddish, 0, 0, 30);
        
       x = i * currentLine;
-      y = noise(x * freq, deg, s ) * amp;
+      y = noise( x * freq, deg, wobble ) * amp;
 
       vertex(x, y);
     }
