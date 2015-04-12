@@ -47,7 +47,7 @@ function draw() {
   }
   if (red === 255) {
     increaseRed = true;
-  } else if (red == 0) {
+  } else if (red === 0) {
     increaseRed = false;
   }
      
@@ -68,7 +68,7 @@ function makeSquiggle(deg, wobble, turn, reddish) {
   fill(255, deg, 0, 10);
   
   for (var i = 0; i < 20; i++) {
-    stroke(reddish, 0, 0, 30);
+    stroke(reddish, 0, 0);
      
     x = i * currentLine;
     y = noise( x * freq, deg, wobble ) * amp;
