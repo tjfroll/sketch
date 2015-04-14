@@ -8,7 +8,6 @@ float angle;
 
 float yamp = 10;
 
-
 float coffset = 0;
 
 int numsegs = 15;
