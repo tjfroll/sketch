@@ -81,8 +81,8 @@ function draw()
 
 	// Scale segment y length distribution using mid energy levels and
 	// high-mid energy levels.
-	segrangey[0] = (-1 + energyhm / 255.) * (energym / 10.);
-	segrangey[1] = (energyhm / 255.) * (energym / 10.);
+	segrangey[0] = (-1 + energyhm / 255.) * (energym / 1.);
+	segrangey[1] = (energyhm / 255.) * (energym / 1.);
 	
 
 	// Get the volume level of the current sound buffer. Range [0, 1].
