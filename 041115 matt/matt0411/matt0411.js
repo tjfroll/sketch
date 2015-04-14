@@ -76,8 +76,8 @@ function draw()
 	energyh =  fft.getEnergy("treble");
 	
 	// Scale segment x length distribution using bass energy levels.
-	segrangex[0] = 0.1 + energyl / 2.;
-	segrangex[1] = 0.5 + energyl;
+	segrangex[0] = 0.1 + energyl / 25.;
+	segrangex[1] = 0.5 + energyl / 10;
 
 	// Scale segment y length distribution using mid energy levels and
 	// high-mid energy levels.
@@ -132,6 +132,7 @@ function newline()
 
 	// Draw the "line".
 	beginShape();
+	vertex(0, 0);
 	for(i = 0; i < numsegs; i++)
 	{
 		// Increment fillvar2.
