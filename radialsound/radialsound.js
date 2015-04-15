@@ -121,7 +121,7 @@ function draw() {
 	denergyh = Math.abs(energyh - denergyh);
 
 	denergy = energy;
-	energy = fft.getEnergy(20, 14000);
+	energy = fft.getEnergy(20, 20000);
 	denergy = Math.abs(energy - denergy);
 
 	// Ignore energy changes smaller than these thresholds
@@ -171,7 +171,7 @@ function draw() {
 
 	// Scale segment y length distribution using mid energy levels and
 	// high-mid energy levels.
-	var ev = 0.013 * Math.pow(energyh, 1.52)
+	var ev = 0.013 * Math.pow(energylm, 1.52)
 	segrangey[0] = -ev;
 	segrangey[1] = ev;
 
