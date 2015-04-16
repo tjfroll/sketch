@@ -437,7 +437,7 @@ var Visualizer = function() {
  */
 var SoundcloudLoader = function(player,uiUpdater) {
     var self = this;
-    var client_id = "YOUR_SOUNDCLOUD_CLIENT_ID"; // to get an ID go to http://developers.soundcloud.com/
+    var client_id = "64cec4b76a4f806a56564542d10cb077"; // to get an ID go to http://developers.soundcloud.com/
     this.sound = {};
     this.streamUrl = "";
     this.errorMessage = "";
@@ -452,7 +452,7 @@ var SoundcloudLoader = function(player,uiUpdater) {
      */
     this.loadStream = function(track_url, successCallback, errorCallback) {
         SC.initialize({
-            client_id: document.getElementById('clientIdInput').value;
+            client_id: client_id
         });
         SC.get('/resolve', { url: track_url }, function(sound) {
             if (sound.errors) {
