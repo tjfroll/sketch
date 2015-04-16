@@ -629,6 +629,7 @@ window.onload = function init() {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         var trackUrl = document.getElementById('input').value;
+        client_id = document.getElementById('clientIdInput').value;
         loadAndUpdate(trackUrl);
     });
     var toggleButton = document.getElementById('toggleButton')
