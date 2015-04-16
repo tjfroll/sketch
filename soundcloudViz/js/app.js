@@ -452,7 +452,7 @@ var SoundcloudLoader = function(player,uiUpdater) {
      */
     this.loadStream = function(track_url, successCallback, errorCallback) {
         SC.initialize({
-            client_id: client_id
+            client_id: document.getElementById('clientIdInput').value;
         });
         SC.get('/resolve', { url: track_url }, function(sound) {
             if (sound.errors) {
@@ -629,7 +629,6 @@ window.onload = function init() {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         var trackUrl = document.getElementById('input').value;
-        client_id = document.getElementById('clientIdInput').value;
         loadAndUpdate(trackUrl);
     });
     var toggleButton = document.getElementById('toggleButton')
