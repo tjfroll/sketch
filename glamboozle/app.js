@@ -29,13 +29,12 @@ function draw() {
       increaseOsc = false;
     }
   } else {
-    osc -= .005;
-    if (turn > 10) {
-      turn -= 9;
-    }
+    osc -= .01;
+    turn -= 6;
     if (osc < 0) {
       osc = 0;
       increaseOsc = true;
+      turn = -255;
     }
   }
    
@@ -53,20 +52,21 @@ function draw() {
 function makeSquiggle(deg, turn) {
   beginShape();
 
-  var r = 180 - (deg / 3) + (turn / 5);
-  var g = 100 - (turn / 3) + (deg / 5);
-  var b = 10 + (deg * osc * 1.1);
-  var a = 75;
-
+  var r = 170 - (abs(deg) / 3) + (abs(turn) / 3);
+  var g = 30 + (abs(turn - 250) / 4);
+  var b = 60 + (deg * osc * .9);
+  var a = 110;
   fill(r, g, b, a);
-  stroke(r / 2, b / 2, g / 2, 40);
 
-  for (var i = 0; i < 200; i += 10) {
+  sFac = .6
+  stroke(r * sFac, b * sFac, g * sFac, 70);
+
+  for (var i = 0; i < 200; i += 20) {
     var x = i * turn / 3 * osc;
-    var y = noise(i * .1, osc, 1 - osc) * (2000 * osc);
+    var y = noise(i * .1, 1 - osc, 1 - osc) * (2000 * osc);
 
     vertex(x, y);
-    vertex(x + 4, y - 64);
+    vertex(x - 256 * osc, y + 512 * osc);
   }
 
   endShape();
