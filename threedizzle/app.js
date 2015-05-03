@@ -37,10 +37,9 @@ function render() {
     addCube();
   }
   cubes.forEach(function (cube) {
-    cube.rotation.x += .1;
-    cube.rotation.y += .1;
+    cube.rotate();
     cube.position.z += 100;
-    if(cube.position.z > -10) {
+    if(cube.position.z > 0) {
       scene.remove(cube);
     }
   });
@@ -55,6 +54,14 @@ function addCube() {
   var geometry = new THREE.BoxGeometry( width, height, depth);
   var material = new THREE.MeshBasicMaterial( { color: color } );
   var cube = new THREE.Mesh( geometry, material );
+  var spinX = Math.random() - Math.random();
+  var spinY = Math.random() - Math.random();
+  var spinZ = Math.random() - Math.random();
+  cube.rotate = function() {
+    this.rotation.x += spinX;
+    this.rotation.y += spinY;
+    this.rotation.z += spinZ;
+  }
 
   scene.add( cube );
 
