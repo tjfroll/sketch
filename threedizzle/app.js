@@ -33,6 +33,12 @@ var cubes = [];
 
 addCube();
 
+var light = new THREE.HemisphereLight(color1, color5, 2);
+scene.add( light );
+
+var light = new THREE.AmbientLight(color3);
+scene.add( light );
+
 console.log(cubes[0]);
 console.log(scene);
 
@@ -69,7 +75,9 @@ function addCube() {
   var geometry = new THREE.BoxGeometry( width, height, depth);
 
   var color = colors[random(8)];
-  var material = new THREE.MeshBasicMaterial( { color: color } );
+  var material = new THREE.MeshLambertMaterial({
+    color: color
+  });
 
   var cube = new THREE.Mesh( geometry, material );
   var spinX = random(1, true) / 30;
@@ -122,6 +130,5 @@ function random(factor, allowNegative) {
   num = Math.floor(num);
   return num;
 }
-
 
 render();
