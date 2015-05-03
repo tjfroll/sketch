@@ -1,10 +1,20 @@
 /*global THREE*/
 
+var camNear = .1;
+var camFar = 10000000;
+var winX = window.innerWidth;
+var winY = window.innerHeight;
+var aspectRatio = winX / winY;
+var fieldOfView = 90;
+
+var rangeX = winX + (camFar * 2);
+var rangeY = winY + camFar;
+
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, .1, 50000);
+var camera = new THREE.PerspectiveCamera( fieldOfView, aspectRatio, camNear, camFar);
 
 var renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setSize( winX, winY );
 document.body.appendChild( renderer.domElement );
 
 color1 = '#6F256F';
@@ -26,7 +36,7 @@ addCube();
 console.log(cubes[0]);
 console.log(scene);
 
-camera.position.z = 5;
+camera.position.z = camFar / 10;
 
 var frameCount = 0;
 function render() {
@@ -38,8 +48,8 @@ function render() {
   }
   cubes.forEach(function (cube) {
     cube.rotate();
-    cube.position.z += 100;
-    if(cube.position.z > 0) {
+    cube.zoom();
+    if(cube.position.z < 0 - camFar ) {
       scene.remove(cube);
     }
   });
@@ -47,40 +57,57 @@ function render() {
 }
 
 function addCube() {
-  var width = 1 + random(150);
-  var height = 1 + random(300);
-  var depth = 1 + random(500);
-  var color = colors[random(8)];
+  var width = 1 + random(camFar / 30);
+  var height = 1 + random(camFar / 120);
+  var depth = 1 + random(camFar / 90);
   var geometry = new THREE.BoxGeometry( width, height, depth);
+
+  var color = colors[random(8)];
   var material = new THREE.MeshBasicMaterial( { color: color } );
+
   var cube = new THREE.Mesh( geometry, material );
-  var spinX = Math.random() - Math.random();
-  var spinY = Math.random() - Math.random();
-  var spinZ = Math.random() - Math.random();
+  var spinX = random(1, true) / 20;
+  var spinY = random(1, true) / 20;
+  var spinZ = random(1, true) / 20;
   cube.rotate = function() {
     this.rotation.x += spinX;
     this.rotation.y += spinY;
     this.rotation.z += spinZ;
   }
 
+  var zoom = 10 + random(camFar / 120);
+  cube.zoom = function() {
+    this.position.z -= zoom;
+  }
+
+  var size = random(camFar / 300)
+  verts = cube.geometry.vertices
+  verts.forEach (function (vert) {
+    vert.x += random(size * 50);
+    vert.y += random(size * 30);
+    vert.z += random(size * 20);
+  });
+
   scene.add( cube );
 
-  winX = window.innerWidth;
-  var posX = random(winX) - (winX / 2);
+  winX = window.innerWidth + 200000;
+  var posX = random(rangeX) - (rangeX / 2);
   cube.position.x = posX;
 
-  winY = window.innerHeight;
-  var posY = random(winY) - (winY / 2);
+  var posY = random(rangeY) - (rangeY / 2);
   cube.position.y = posY;
 
-  cube.position.z = -20000
+  cube.position.z = camFar / 10;
 
   cubes.push(cube);
   return cube;
 }
 
-function random(factor) {
+function random(factor, allowNegative) {
   var num = Math.random() * factor;
+  if(allowNegative) {
+    num -= Math.random() * factor;
+  }
   num = Math.floor(num);
   return num;
 }
