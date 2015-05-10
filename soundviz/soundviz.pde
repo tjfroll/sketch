@@ -99,7 +99,6 @@ void draw()
   // Display a circle with radius proportional to the energy of some portion of the
   // fft spectrum or avg arrays.
   float e0 = 300*getEnergy(avgfft, 4 * floor(fftavgsize/5.), 25);
-  println(e0);
   ellipse(3*width/4, 1*height/4, e0, e0);
 }
 
