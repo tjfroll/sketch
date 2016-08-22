@@ -193,8 +193,6 @@ function generateGradient(canvas, context, dist) {
   var r1 = canvas.width * END_COEFF
   var gradient = context.createRadialGradient( x0, y0, r0, x1, y1, r1 )
 
-  console.log(dist)
-
   var color1 = getColorNumber(dist, 0.75)
   var color2 = getColorNumber(dist, 1)
   var color3 = getColorNumber(dist, 1.25)
@@ -207,7 +205,6 @@ function generateGradient(canvas, context, dist) {
     getRGBString([color2, color1, 0, 0.1]),
     getRGBString([0, 0, 0, 0])
   ]
-  console.log(stops)
   addStops(gradient, stops)
   return gradient
 }
