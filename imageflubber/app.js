@@ -26,6 +26,8 @@ function init() {
 }
 
 function setupImage() {
+  if (imageObj && imageObj.src === urlInput.value)
+    return
   imageObj = new Image()
   imageObj.crossOrigin = 'Anonymous'
   imageObj.src = urlInput.value
@@ -65,8 +67,8 @@ function makeButtons() {
 }
 
 function startRender() {
-  setupImage()
   if (!isRendering) {
+    setupImage()
     runBtn.className += 'active'
     isRendering = true
     window.requestAnimationFrame(render)
