@@ -2,22 +2,33 @@ var stats
 var windowX, windowY
 
 var context, canvas
-var imageObj, src = 'http://i.imgur.com/PBQmwsx.jpg'
+var imageObj
 var width, height
 
 var loopId = 0, loopIndex = 0, isRendering = false
-var runBtn, stopBtn
+var runBtn, stopBtn, urlInput
 
 init()
 
 function init() {
   updateWindowDimensions()
-  setupImage()
   makeStats()
 
   container = document.createElement( 'div' )
   canvas = document.createElement( 'canvas' )
   context = canvas.getContext('2d')
+
+  container.appendChild( canvas )
+  var buttons = makeButtons()
+  container.appendChild(buttons)
+  setupImage()
+  document.body.appendChild( container )
+}
+
+function setupImage() {
+  imageObj = new Image()
+  imageObj.crossOrigin = 'Anonymous'
+  imageObj.src = urlInput.value
 
   imageObj.onload = function (e) {
     width = e.currentTarget.width > windowX ? windowX : e.currentTarget.width
@@ -28,38 +39,35 @@ function init() {
     context.canvas.height = height
     context.drawImage(this, 0, 0, width, height)
   }
-
-  container.appendChild( canvas )
-  var buttons = makeButtons()
-  container.appendChild(buttons)
-  document.body.appendChild( container )
-}
-
-function setupImage() {
-  imageObj = new Image()
-  imageObj.crossOrigin = 'Anonymous'
-  imageObj.src = src
 }
 
 function makeButtons() {
   var buttons = document.createElement( 'div' )
-  buttons.classNames = 'button-row'
+  buttons.classNames = 'input-row'
+
   runBtn = document.createElement( 'button' )
   runBtn.onclick = startRender
   runBtn.textContent = 'run'
   runBtn.id = 'run-btn'
+  buttons.appendChild( runBtn )
+
+  urlInput = document.createElement( 'input' )
+  urlInput.placeholder = 'Image url to warp'
+  urlInput.value = 'http://i.imgur.com/PBQmwsx.jpg'
+  buttons.appendChild(urlInput)
+
   stopBtn = document.createElement( 'button' )
   stopBtn.onclick = stopRender
   stopBtn.textContent = 'stop'
   stopBtn.id = 'stop-btn'
-  buttons.appendChild( runBtn )
   buttons.appendChild( stopBtn )
   return buttons
 }
 
 function startRender() {
+  setupImage()
   if (!isRendering) {
-    runBtn.classNames += ' active'
+    runBtn.className += 'active'
     isRendering = true
     window.requestAnimationFrame(render)
   }
@@ -67,6 +75,7 @@ function startRender() {
 
 function stopRender() {
   isRendering = false
+  runBtn.className = ''
   window.cancelAnimationFrame(loopId)
   context.drawImage(imageObj, 0, 0, width, height)
 }
