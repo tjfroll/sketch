@@ -22,6 +22,8 @@ function init() {
   imageObj.onload = function (e) {
     width = e.currentTarget.width > windowX ? windowX : e.currentTarget.width
     height = e.currentTarget.height > windowY ? windowY : e.currentTarget.height
+    width = width > 1280 ? 1280 : width
+    height = height > 720 ? 720 : height
     context.canvas.width = width 
     context.canvas.height = height
     context.drawImage(this, 0, 0, width, height)
