@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>three.js canvas - particles - sprites</title>
+    <title>particle shitter</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
@@ -12,8 +12,13 @@
         overflow: hidden;
       }
 
-      a {
-        color: #0078ff;
+      p {
+        width: 100%;
+        text-align: center;
+        color: #333;
+        font-size: 24px;
+        position: absolute;
+        bottom: 0;
       }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r79/three.js"></script>
@@ -26,8 +31,8 @@
     <script src="./stats.min.js"></script>
     <script src="./tween.min.js"></script>
 
-    <script src = "./app.js">
+    <script src = "./app.js"></script>
 
-    </script>
+    <p>click and drag, yo</p>
   </body>
 </html>
