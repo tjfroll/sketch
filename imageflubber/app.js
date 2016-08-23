@@ -53,9 +53,9 @@ function init() {
 function render() {
   var imgData = context.getImageData(0, 0, canvas.width, canvas.height)
   var data = imgData.data
-  if (useHsv) {
-    imageToHsv(data)
-  }
+  // if (useHsv) {
+  //   imageToHsv(data)
+  // }
   var variance = Math.floor(Math.random() * 16) - 1
   var quadWidth = width * 4
 
@@ -90,9 +90,9 @@ function render() {
     }
   }
 
-  if (useHsv) {
-    imageToRgb(data)
-  }
+  // if (useHsv) {
+  //   imageToRgb(data)
+  // }
   context.putImageData(imgData, 0, 0)
   stats.update()
   loopId = window.requestAnimationFrame(render)
