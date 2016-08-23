@@ -4,18 +4,19 @@ var windowX, windowY
 var context, canvas
 var imageObj
 var images = [
+  'http://i.imgur.com/CL5PGlc.jpg',
+  'http://i.imgur.com/KuhFoP9.jpg',
   'http://i.imgur.com/lsNjQ7u.jpg',
   'http://i.imgur.com/PBQmwsx.jpg',
   'http://i.imgur.com/ng3vJ7L.jpg',
-  'http://i.imgur.com/7JPRZki.jpg',
   'http://i.imgur.com/Jg3RjTZ.jpg',
-  'http://i.imgur.com/DKWHq1W.jpg',
+  'http://i.imgur.com/lyC25bG.jpg',
   'http://i.imgur.com/N6sGhwS.jpg'
 ]
 var width, height
 
 var loopId = 0, loopIndex = 0, isRendering = false
-var buttons, runBtn
+var toolbar, runBtn
 var randoms = []
 var size = 0
 
@@ -34,15 +35,60 @@ function init() {
   makeImage()
   container.appendChild( canvas )
 
-  buttons = document.createElement( 'div' )
-  buttons.className = 'toolbar'
-  makeButtons()
+  toolbar = document.createElement( 'div' )
+  toolbar.className = 'toolbar'
+  makeToolbar()
   var presets = makePresets()
-  container.appendChild(buttons)
+  container.appendChild(toolbar)
   container.appendChild(presets)
   setupImage()
   document.body.appendChild( container )
 }
+
+
+function render() {
+  var imgData = context.getImageData(0, 0, canvas.width, canvas.height)
+  var data = imgData.data
+  var variance = Math.floor(Math.random() * 16) - 1
+  var quadWidth = width * 4
+
+  for (var i = 4; i < size; i += 4) {
+    var pos = (i / 4) + variance
+    if (pos >= size) {
+      pos = pos - size
+    }
+    if (isRight && randoms[pos] < 0.25) { //right
+      if (isRed) data[i] = data[i - 4]
+      if (isGreen) data[i + 1] = data[i + 1 - 4]
+      if (isBlue) data[i + 2] = data[i + 2 - 4]
+    } 
+    else if (isLeft && randoms[pos] < 0.5) { //left
+      if (i + 4 < size) {
+        if (isRed) data[i] = data[i + 4]
+        if (isGreen) data[i + 1] = data[i + 1 + 4]
+        if (isBlue) data[i + 2] = data[i + 2 + 4]
+      }
+    } else if (isUp && randoms[pos] < 0.75) { //top
+      if (i + quadWidth < size) {
+        if (isRed) data[i] = data[i + quadWidth]
+        if (isGreen) data[i + 1] = data[i + 1 + quadWidth]
+        if (isBlue) data[i + 2] = data[i + 2 + quadWidth]
+      }
+    } else if (isDown) { //bot
+      if (i - quadWidth > 0) {
+        if (isRed) data[i] = data[i - quadWidth]
+        if (isGreen) data[i + 1] = data[i + 1 - quadWidth]
+        if (isBlue) data[i + 2] = data[i + 2 - quadWidth]
+      }
+    }
+  }
+
+  context.putImageData(imgData, 0, 0)
+  stats.update()
+  loopId = window.requestAnimationFrame(render)
+}
+
+// -- events -- //
 
 function toggleRender() {
   if (!isRendering) {
@@ -74,152 +120,6 @@ function stopRender() {
 
 function reset() {
   context.drawImage(imageObj, 0, 0, width, height)
-}
-
-function render() {
-  var imgData = context.getImageData(0, 0, canvas.width, canvas.height)
-  var data = imgData.data
-  var variance = Math.floor(Math.random() * 16) - 1
-  for (var i = 4; i < size; i += 4) {
-    var pos = (i / 4) + variance
-    if (pos >= size) {
-      pos = pos - size
-    }
-    if (isRight && randoms[pos] < 0.25) { //right
-      if (isRed) data[i] = data[i - 4]
-      if (isGreen) data[i + 1] = data[i + 1 - 4]
-      if (isBlue) data[i + 2] = data[i + 2 - 4]
-    } 
-    else if (isLeft && randoms[pos] < 0.5) { //left
-      if (i + 4 < size) {
-        if (isRed) data[i] = data[i + 4]
-        if (isGreen) data[i + 1] = data[i + 1 + 4]
-        if (isBlue) data[i + 2] = data[i + 2 + 4]
-      }
-    } else if (isUp && randoms[pos] < 0.75) { //top
-      if (i + width * 4 < size) {
-        if (isRed) data[i] = data[i + width * 4]
-        if (isGreen) data[i + 1] = data[i + 1 + width * 4]
-        if (isBlue) data[i + 2] = data[i + 2 + width * 4]
-      }
-    } else if (isDown) { //bot
-      if (i - width * 4 > 0) {
-        if (isRed) data[i] = data[i - width * 4]
-        if (isGreen) data[i + 1] = data[i + 1 - width * 4]
-        if (isBlue) data[i + 2] = data[i + 2 - width * 4]
-      }
-    }
-  }
-
-  context.putImageData(imgData, 0, 0)
-  stats.update()
-  loopId = window.requestAnimationFrame(render)
-}
-
-function makeImage() {
-  imageObj = document.createElement( 'img' )
-  imageObj.crossOrigin = 'Anonymous'
-  imageObj.onload = function (e) {
-    width = e.currentTarget.width > windowX ? windowX : e.currentTarget.width
-    height = e.currentTarget.height > windowY ? windowY : e.currentTarget.height
-    width = width > 1920 ? 1920 : width
-    height = height > 1920 ? 1080 : height
-    context.canvas.width = width 
-    context.canvas.height = height
-    context.drawImage(this, 0, 0, width, height)
-  }
-}
-
-function setupImage() {
-  if (imageObj.src === urlInput.value)
-    return
-  imageObj.src = urlInput.value
-}
-
-function attemptImageSetup(e) {
-  var text = e.target.value || e
-  if (text == null || !text || text.length < 10)
-    return
-  else if (text.endsWith('jpg') || text.endsWith('png'))
-    setupImage()
-}
-
-function makeButtons() {
-  runBtn = makeButton(buttons, {
-    onclick: toggleRender,
-    textContent: 'run'
-  })
-
-  makeButton(buttons, {
-    onclick: reset,
-    textContent: 'reset'
-  })
-
-  makeColorButtons()
-  makeDirButtons()
-
-  urlInput = document.createElement( 'input' )
-  urlInput.placeholder = 'Image url to warp'
-  urlInput.value = images[0]
-  urlInput.oninput = attemptImageSetup
-  urlInput.title = 'Provide an image url!'
-  buttons.appendChild(urlInput)
-
-  return buttons
-}
-
-function makeColorButtons() {
-  ['red', 'green', 'blue'].forEach( function(color) {
-    makeButton(buttons, {
-      textContent: color.charAt(0),
-      className: 'active color-btn',
-      id: color + '-btn',
-      title: 'Toggle ' + color,
-      onclick: function() { setColor(color) }
-    })
-  })
-}
-
-function makeDirButtons() {
-  ['up', 'down', 'left', 'right'].forEach( function(dir) {
-    makeButton(buttons, {
-      textContent: dir,
-      className: 'active dir-btn',
-      id: dir + '-btn',
-      title: 'Shift ' + dir,
-      onclick: function() { setDirection(dir) }
-    })
-  })
-}
-
-function makeButton(parent, opts) {
-  btn = document.createElement( 'button' )
-  btn.onclick = opts.onclick
-  btn.className = opts.className
-  btn.textContent = opts.textContent
-  btn.id = opts.id
-  btn.title = opts.title
-  parent.appendChild( btn )
-  return btn
-}
-
-function makePresets() {
-  var btns = document.createElement( 'div' )
-  btns.className = 'presets'
-  images.forEach( function(url, i) {
-    var btn = makeButton(btns, {
-      onclick: function() {
-        $('.preset-btn').removeClass('active')
-        btn.className += ' active'
-        urlInput.value = url
-        setupImage()
-      },
-      textContent: '' + (i + 1),
-      title: 'Load preset image',
-      className: i === 0 ? 'preset-btn active' : 'preset-btn'
-    })
-  })
-  return btns
 }
 
 function setColor(color) {
@@ -254,6 +154,141 @@ function setDirection(dir) {
   }
   $('#' + dir + '-btn').toggleClass('active')
 }
+
+
+// -- setting up the image -- //
+
+function makeImage() {
+  imageObj = document.createElement( 'img' )
+  imageObj.crossOrigin = 'Anonymous'
+  imageObj.onload = function (e) {
+    var factorX, factorY
+    width = e.currentTarget.width
+    height = e.currentTarget.height
+    if (width > windowX) {
+      factorX = windowX / width
+      width = windowX
+      height = Math.floor(height * factorX)
+    }
+    if (height > windowY) {
+      factorY = windowY / height
+      height = windowY
+      width = Math.floor(width * factorY)
+    }
+    context.canvas.width = width 
+    context.canvas.height = height
+    context.drawImage(this, 0, 0, width, height)
+  }
+}
+
+function setupImage() {
+  if (imageObj.src === urlInput.value)
+    return
+  imageObj.src = urlInput.value
+}
+
+function attemptImageSetup(e) {
+  var text = e.target.value || e
+  if (text == null || !text || text.length < 10)
+    return
+  else if (text.endsWith('jpg') || text.endsWith('png'))
+    setupImage()
+}
+
+// -- interface -- //
+
+function makeToolbar() {
+  runBtn = makeButton(toolbar, {
+    onclick: toggleRender,
+    textContent: 'run'
+  })
+
+  makeButton(toolbar, {
+    onclick: reset,
+    textContent: 'reset'
+  })
+
+  makeColorButtons()
+  makeDirButtons()
+
+  urlInput = document.createElement( 'input' )
+  urlInput.placeholder = 'Image url to warp'
+  urlInput.value = images[0]
+  urlInput.oninput = attemptImageSetup
+  urlInput.title = 'Provide an image url!'
+  toolbar.appendChild(urlInput)
+
+  return toolbar
+}
+
+function makeColorButtons() {
+  ['red', 'green', 'blue'].forEach( function(color) {
+    makeButton(toolbar, {
+      textContent: color.charAt(0),
+      className: 'active color-btn',
+      id: color + '-btn',
+      title: 'Toggle ' + color,
+      onclick: function() { setColor(color) }
+    })
+  })
+}
+
+function makeDirButtons() {
+  ['up', 'down', 'left', 'right'].forEach( function(dir) {
+    makeButton(toolbar, {
+      textContent: getDirText(dir),
+      className: 'active dir-btn',
+      id: dir + '-btn',
+      title: 'Shift ' + dir,
+      onclick: function() { setDirection(dir) }
+    })
+  })
+}
+
+function getDirText(dir) {
+  switch (dir) {
+    case 'up':
+      return '^^^'
+    case 'down':
+      return 'vvv'
+    case 'left':
+      return '<<<'
+    case 'right':
+      return '>>>'
+  }
+}
+
+function makeButton(parent, opts) {
+  btn = document.createElement( 'button' )
+  btn.onclick = opts.onclick
+  btn.className = opts.className
+  btn.textContent = opts.textContent
+  btn.id = opts.id
+  btn.title = opts.title
+  parent.appendChild( btn )
+  return btn
+}
+
+function makePresets() {
+  var btns = document.createElement( 'div' )
+  btns.className = 'presets'
+  images.forEach( function(url, i) {
+    var btn = makeButton(btns, {
+      onclick: function() {
+        $('.preset-btn').removeClass('active')
+        btn.className += ' active'
+        urlInput.value = url
+        setupImage()
+      },
+      textContent: '' + (i + 1),
+      title: 'Load preset image',
+      className: i === 0 ? 'preset-btn active' : 'preset-btn'
+    })
+  })
+  return btns
+}
+
+// -- util -- //
 
 function updateWindowDimensions() {
   windowX = window.innerWidth
