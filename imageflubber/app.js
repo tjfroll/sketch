@@ -21,6 +21,7 @@ var width, height
 
 var loopId = 0, loopIndex = 0, isRendering = false
 var toolbar, runBtn, hsvBtn
+var imgData, data
 var randoms = []
 var size = 0
 
@@ -51,8 +52,6 @@ function init() {
 }
 
 function render() {
-  var imgData = context.getImageData(0, 0, canvas.width, canvas.height)
-  var data = imgData.data
   // if (useHsv) {
   //   imageToHsv(data)
   // }
@@ -118,6 +117,8 @@ function startRender() {
     randoms.push(Math.random())
   }
   size = randoms.length
+  imgData = context.getImageData(0, 0, canvas.width, canvas.height)
+  data = imgData.data
   window.requestAnimationFrame(render)
 }
 
