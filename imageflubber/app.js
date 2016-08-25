@@ -1,9 +1,6 @@
 var stats
 var windowX, windowY
 
-var mathMin = Math.min
-var mathMax = Math.max
-
 var context, canvas
 var imageObj
 var images = [
@@ -20,12 +17,12 @@ var images = [
 var width, height
 
 var loopId = 0, loopIndex = 0, isRendering = false
-var toolbar, runBtn, hsvBtn
+var toolbar, runBtn, randColorBtn, randDirBtn
 var imgData, data
 var randoms = []
 var size = 0
 
-var useHsv = false
+var randColor = false, randDir = false
 var isLeft = true, isRight = true, isDown = true, isUp = true
 var isRed = true, isGreen = true, isBlue = true
 
@@ -52,11 +49,31 @@ function init() {
 }
 
 function render() {
-  // if (useHsv) {
-  //   imageToHsv(data)
-  // }
   var variance = Math.floor(Math.random() * 16) - 1
   var quadWidth = width * 4
+
+  if (randDir) {
+    var rD = Math.random()
+    if (rD <= 0.25) {
+      if (isUp) setDir('left')
+    } else if (rD <= 0.5) {
+      if (isLeft || isUp) setDir('right')
+    } else if (rD <= 0.75) {
+      if (isLeft) setDir('up')
+    } else {
+      setDir('down')
+    }
+  }
+  if (randColor) {
+    var rC = Math.random()
+    if (rC <= 0.33) {
+      if (isGreen || isBlue) setColor('red')
+    } else if (rC <= 0.66) {
+      if (isRed || isBlue) setColor('green')
+    } else {
+      if (isGreen || isRed) setColor('blue')
+    }
+  }
 
   for (var i = 4; i < size; i += 4) {
     var pos = (i / 4) + variance
@@ -89,9 +106,6 @@ function render() {
     }
   }
 
-  // if (useHsv) {
-  //   imageToRgb(data)
-  // }
   context.putImageData(imgData, 0, 0)
   stats.update()
   loopId = window.requestAnimationFrame(render)
@@ -166,14 +180,15 @@ function setDirection(dir) {
   $('#' + dir + '-btn').toggleClass('active')
 }
 
-function toggleHsv() {
-  useHsv = !useHsv
-  hsvBtn.textContent = useHsv ? 'HSV' : 'RGB'
-  $('#red-btn').text(useHsv ? 'h' : 'r' )
-  $('#green-btn').text(useHsv ?'s' : 'g' )
-  $('#blue-btn').text(useHsv ? 'v' : 'b' )
+function randomizeColor() {
+  randColor = !randColor
+  $(randColorBtn).toggleClass('active')
 }
 
+function randomizeDir() {
+  randDir = !randDir
+  $(randDirBtn).toggleClass('active')
+}
 
 // -- setting up the image -- //
 
@@ -227,13 +242,18 @@ function makeToolbar() {
     textContent: 'reset'
   })
 
-  hsvBtn = makeButton(toolbar, {
-    onclick: toggleHsv,
-    textContent: 'RGB',
-    title: 'Toggle the color shifting mode.  NOTE: HSV currently borked'
+  randColorBtn = makeButton(toolbar, {
+    onclick: randomizeColor,
+    textContent: '? color ?',
+    title: 'Randomize the color channels.'
   })
-
   makeColorButtons()
+
+  randDirBtn = makeButton(toolbar, {
+    onclick: randomizeDir,
+    textContent: '? dir ?',
+    title: 'Randomize the directions.'
+  })
   makeDirButtons()
 
   urlInput = document.createElement( 'input' )
@@ -325,96 +345,4 @@ function updateWindowDimensions() {
 function makeStats() {
   stats = new Stats()
   document.body.appendChild( stats.dom )  
-}
-
-function imageToRgb(data) {
-  for(i=4;i<data.length;i+=4) {
-    var rgb = hsvToRgb(data[i], data[i + 1], data[i + 2])
-    data[i] = rgb[0]
-    data[i + 1] = rgb[1]
-    data[i + 2] = rgb[2]
-  }
-}
-
-function imageToHsv(data) {
-  for(i=4;i<data.length;i+=4) {
-    var hsv = rgbToHsv(data[i], data[i + 1], data[i + 2])
-    data[i] = hsv[0]
-    data[i + 1] = hsv[1]
-    data[i + 2] = hsv[2]
-  }
-}
-
-function rgbToHsv(r, g, b) {
-
-  r = bound01(r, 255)
-  g = bound01(g, 255)
-  b = bound01(b, 255)
-
-  var max = mathMax(r, g, b), min = mathMin(r, g, b)
-  var h, s, v = max
-
-  var d = max - min
-  s = max === 0 ? 0 : d / max
-
-  if(max == min) {
-    h = 0 // achromatic
-  }
-  else {
-    switch(max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6
-  }
-  return [
-    Math.round(h),
-    Math.round(s),
-    Math.round(v)
-  ]
-}
-
- function hsvToRgb(h, s, v) {
-
-  h = bound01(h, 360) * 6
-  s = bound01(s, 100)
-  v = bound01(v, 100)
-
-  var i = Math.floor(h),
-    f = h - i,
-    p = v * (1 - s),
-    q = v * (1 - f * s),
-    t = v * (1 - (1 - f) * s),
-    mod = i % 6
-
-  return [
-    Math.round([v, q, p, p, t, v][mod] * 255),
-    Math.round([t, v, v, q, p, p][mod] * 255),
-    Math.round([p, p, t, v, v, q][mod] * 255)
-  ]
-}
-
-function bound01(n, max) {
-  if (isOnePointZero(n)) { n = "100%" }
-
-  var processPercent = isPercentage(n)
-  n = mathMin(max, mathMax(0, parseFloat(n)))
-
-  if (processPercent) {
-      n = parseInt(n * max, 10) / 100
-  }
-
-  if ((Math.abs(n - max) < 0.000001)) {
-      return 1
-  }
-  return (n % max) / parseFloat(max)
-}
-
-function isOnePointZero(n) {
-  return typeof n == "string" && n.indexOf('.') != -1 && parseFloat(n) === 1
-}
-
-function isPercentage(n) {
-  return typeof n === "string" && n.indexOf('%') != -1
 }
