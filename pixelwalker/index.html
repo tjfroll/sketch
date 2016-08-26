@@ -13,7 +13,7 @@
         text-align:  center;
       }
 
-      html:hover .presets, html:hover .toolbar {
+      html:hover .presets, html:hover .toolbar, html:hover .runbar {
         opacity: 1;
       }
 
@@ -23,16 +23,21 @@
       }
 
       .toolbar {
-        bottom:  16px;
+        bottom:  0.5%;
         height:  4%;
       }
 
       .presets {
-        bottom: 8%;
+        bottom: 5.5%;
         height:  3%;
       }
 
-      .presets, .toolbar {
+      .runbar {
+        bottom: 10%;
+        height:  4%;
+      }
+
+      .presets, .toolbar, .runbar {
         display:  flex;
         justify-content: center;
         position:  absolute;
@@ -87,8 +92,11 @@
       button.color-btn {
         flex: 1 1 1%;
       }
+      button.run-btn {
+      }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.js"></script>
   </head>
   <body>
     <script src="./stats.min.js"></script>

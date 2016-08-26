@@ -17,7 +17,7 @@ var images = [
 var width, height
 
 var loopId = 0, loopIndex = 0, isRendering = false
-var toolbar, runBtn, randColorBtn, randDirBtn
+var toolbar, runbar, runBtn, randColorBtn, randDirBtn
 var imgData, data
 var randoms = []
 var size = 0
@@ -38,14 +38,19 @@ function init() {
   makeImage()
   container.appendChild( canvas )
 
+  runbar = document.createElement( 'div' )
+  runbar.className = 'runbar'
+  makeRunbar()
+  container.appendChild(runbar)
+
+  container.appendChild(makePresets())
   toolbar = document.createElement( 'div' )
   toolbar.className = 'toolbar'
   makeToolbar()
-  var presets = makePresets()
   container.appendChild(toolbar)
-  container.appendChild(presets)
   setupImage()
   document.body.appendChild( container )
+  document.addEventListener( 'keydown', _.throttle(toggleDirection, 150))
 }
 
 function render() {
@@ -54,14 +59,15 @@ function render() {
 
   if (randDir) {
     var rD = Math.random()
+    // There's some bad situations that can result from certain combinations
     if (rD <= 0.25) {
-      if (isUp) setDir('left')
+      if (isUp) setDirection('left')
     } else if (rD <= 0.5) {
-      if (isLeft || isUp) setDir('right')
+      if (isLeft || isUp) setDirection('right')
     } else if (rD <= 0.75) {
-      if (isLeft) setDir('up')
+      if (isLeft) setDirection('up')
     } else {
-      setDir('down')
+      setDirection('down')
     }
   }
   if (randColor) {
@@ -180,41 +186,59 @@ function setDirection(dir) {
   $('#' + dir + '-btn').toggleClass('active')
 }
 
-function randomizeColor() {
+function toggleDirection(e) {
+  switch (e.keyCode) {
+    case 65:
+      return setDirection('left')
+    case 68:
+      return setDirection('right')
+    case 87:
+      return setDirection('up')
+    case 83:
+      return setDirection('down')
+  }
+}
+
+function setRandomizeColor() {
   randColor = !randColor
   $(randColorBtn).toggleClass('active')
 }
 
-function randomizeDir() {
+function setRandomizeDir() {
   randDir = !randDir
   $(randDirBtn).toggleClass('active')
 }
 
 // -- setting up the image -- //
 
+// initial image creation
 function makeImage() {
   imageObj = document.createElement( 'img' )
   imageObj.crossOrigin = 'Anonymous'
-  imageObj.onload = function (e) {
-    var factorX, factorY
-    width = e.currentTarget.width
-    height = e.currentTarget.height
-    if (width > windowX) {
-      factorX = windowX / width
-      width = windowX
-      height = Math.floor(height * factorX)
-    }
-    if (height > windowY) {
-      factorY = windowY / height
-      height = windowY
-      width = Math.floor(width * factorY)
-    }
-    context.canvas.width = width 
-    context.canvas.height = height
-    context.drawImage(this, 0, 0, width, height)
-  }
+  imageObj.onload = loadImage
 }
 
+function loadImage(e) {
+  var factorX, factorY
+  width = e.currentTarget.width
+  height = e.currentTarget.height
+  if (width > windowX) {
+    factorX = windowX / width
+    width = windowX
+    height = Math.floor(height * factorX)
+  }
+  if (height > windowY) {
+    factorY = windowY / height
+    height = windowY
+    width = Math.floor(width * factorY)
+  }
+  context.canvas.width = width 
+  context.canvas.height = height
+  context.drawImage(this, 0, 0, width, height)
+}
+
+
+// integration with url input / presets
 function setupImage() {
   if (imageObj.src === urlInput.value)
     return
@@ -230,89 +254,6 @@ function attemptImageSetup(e) {
 }
 
 // -- interface -- //
-
-function makeToolbar() {
-  runBtn = makeButton(toolbar, {
-    onclick: toggleRender,
-    textContent: 'run'
-  })
-
-  makeButton(toolbar, {
-    onclick: reset,
-    textContent: 'reset'
-  })
-
-  randColorBtn = makeButton(toolbar, {
-    onclick: randomizeColor,
-    textContent: '? color ?',
-    title: 'Randomize the color channels.'
-  })
-  makeColorButtons()
-
-  randDirBtn = makeButton(toolbar, {
-    onclick: randomizeDir,
-    textContent: '? dir ?',
-    title: 'Randomize the directions.'
-  })
-  makeDirButtons()
-
-  urlInput = document.createElement( 'input' )
-  urlInput.placeholder = 'Image url to warp'
-  urlInput.value = images[0]
-  urlInput.oninput = attemptImageSetup
-  urlInput.title = 'Provide an image url!'
-  toolbar.appendChild(urlInput)
-
-  return toolbar
-}
-
-function makeColorButtons() {
-  ['red', 'green', 'blue'].forEach( function(color) {
-    makeButton(toolbar, {
-      textContent: color.charAt(0),
-      className: 'active color-btn',
-      id: color + '-btn',
-      title: 'Toggle ' + color,
-      onclick: function() { setColor(color) }
-    })
-  })
-}
-
-function makeDirButtons() {
-  ['up', 'down', 'left', 'right'].forEach( function(dir) {
-    makeButton(toolbar, {
-      textContent: getDirText(dir),
-      className: 'active dir-btn',
-      id: dir + '-btn',
-      title: 'Shift ' + dir,
-      onclick: function() { setDirection(dir) }
-    })
-  })
-}
-
-function getDirText(dir) {
-  switch (dir) {
-    case 'up':
-      return '^^^'
-    case 'down':
-      return 'vvv'
-    case 'left':
-      return '<<<'
-    case 'right':
-      return '>>>'
-  }
-}
-
-function makeButton(parent, opts) {
-  btn = document.createElement( 'button' )
-  btn.onclick = opts.onclick
-  btn.className = opts.className
-  btn.textContent = opts.textContent
-  btn.id = opts.id
-  btn.title = opts.title
-  parent.appendChild( btn )
-  return btn
-}
 
 function makePresets() {
   var btns = document.createElement( 'div' )
@@ -333,7 +274,98 @@ function makePresets() {
   return btns
 }
 
-// -- util -- //
+function makeRunbar() {
+  runBtn = makeButton(runbar, {
+    onclick: toggleRender,
+    textContent: 'run',
+    className: 'run-btn',
+    title: 'uh huh'
+  })
+
+  makeButton(runbar, {
+    onclick: reset,
+    textContent: 'reset',
+    title: 'reset'
+  })
+}
+
+function makeToolbar() {
+  makeColorButtons()
+  makeDirButtons()
+  makeUrlInput()
+
+  return toolbar
+}
+
+function makeColorButtons() {
+  randColorBtn = makeButton(toolbar, {
+    onclick: setRandomizeColor,
+    textContent: '? color ?',
+    title: 'Randomize the color channels.'
+  })
+  var arr = ['red', 'green', 'blue']
+  arr.forEach( function(color) {
+    makeButton(toolbar, {
+      textContent: color.charAt(0),
+      className: 'active color-btn',
+      id: color + '-btn',
+      title: 'Toggle ' + color,
+      onclick: function() { setColor(color) }
+    })
+  })
+}
+
+function makeDirButtons() {
+  randDirBtn = makeButton(toolbar, {
+    onclick: setRandomizeDir,
+    textContent: '? dir ?',
+    title: 'Randomize the directions.'
+  })
+  var arr = ['up', 'down', 'left', 'right']
+  arr.forEach( function(dir) {
+    makeButton(toolbar, {
+      textContent: getDirText(dir),
+      className: 'active dir-btn',
+      id: dir + '-btn',
+      title: 'Shift ' + dir,
+      onclick: function() { (dir) }
+    })
+  })
+}
+
+function getDirText(dir) {
+  switch (dir) {
+    case 'up':
+      return '^^^'
+    case 'down':
+      return 'vvv'
+    case 'left':
+      return '<<<'
+    case 'right':
+      return '>>>'
+  }
+}
+
+// was this worth doing?  who can really say
+function makeButton(parent, opts) {
+  var btn = document.createElement( 'button' )
+  btn.onclick = opts.onclick
+  btn.className = opts.className
+  btn.textContent = opts.textContent
+  btn.id = opts.id
+  btn.title = opts.title
+  parent.appendChild( btn )
+  return btn
+}
+
+function makeUrlInput() {
+  urlInput = document.createElement( 'input' )
+  urlInput.placeholder = 'Image url to warp'
+  urlInput.value = images[0]
+  urlInput.oninput = attemptImageSetup
+  urlInput.title = 'Provide an image url!'
+  toolbar.appendChild(urlInput)
+}
 
 function updateWindowDimensions() {
   windowX = window.innerWidth
