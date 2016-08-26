@@ -328,7 +328,7 @@ function makeDirButtons() {
       className: 'active dir-btn',
       id: dir + '-btn',
       title: 'Shift ' + dir,
-      onclick: function() { (dir) }
+      onclick: function() { setDirection(dir) }
     })
   })
 }
